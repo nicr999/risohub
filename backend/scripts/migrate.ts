@@ -49,7 +49,7 @@ async function run() {
 
   // Read migration files
   const files = fs.readdirSync(MIGRATIONS_DIR)
-    .filter(f => f.endsWith('.ts') || f.endsWith('.js'))
+    .filter(f => f.endsWith('.js'))
     .sort(); // runs in filename order (001-, 002-, etc.)
 
   let applied = 0;
