@@ -10,7 +10,8 @@ const pdfFonts = require('pdfmake/build/vfs_fonts') as any;
 import AWS from 'aws-sdk';
 import { Report } from '../models';
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+// vfs_fonts export structure varies by pdfmake version — handle both
+pdfMake.vfs = pdfFonts?.pdfMake?.vfs ?? pdfFonts ?? {};
 
 const s3 = new AWS.S3();
 

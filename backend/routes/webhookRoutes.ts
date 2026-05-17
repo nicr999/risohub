@@ -1,6 +1,6 @@
 // routes/webhookRoutes.ts
 import { Router, Request, Response } from 'express';
-import { authenticate, requireRole } from '../authMiddleware';
+import { authenticate, authorize as requireRole } from '../auth/authMiddleware';
 import { WebhookEndpoint, WebhookDelivery } from '../models';
 import crypto from 'crypto';
 

@@ -1,6 +1,6 @@
 // routes/eligibilityRoutes.ts
 import { Router, Request, Response } from 'express';
-import { authenticate } from '../authMiddleware';
+import { authenticate } from '../auth/authMiddleware';
 import { assessEligibility, GRANT_REFERENCE_TABLE, EligibilityInput } from '../services/besEligibilityService';
 
 const router = Router();
