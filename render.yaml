@@ -15,7 +15,7 @@ services:
     startCommand: cd backend && npm run start:prod
     branch: main
     region: frankfurt                    # EU — GDPR compliance
-    plan: standard                       # 2 CPU / 4GB RAM
+    plan: free                           # Free tier — upgrade for production
     healthCheckPath: /health
     autoDeploy: true
     envVars:
