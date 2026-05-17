@@ -13,6 +13,7 @@
     "migrate:undo": "sequelize-cli db:migrate:undo",
     "seed": "node dist/seeds/001-seed.js",
     "seed:demo": "node dist/seeds/002-demo.js",
+    "seed:audit": "node dist/seeds/003-audit-demo.js",
     "seed:legacy": "sequelize-cli db:seed:all",
     "seed:test": "sequelize-cli db:seed --seed seeders/20240101-e2e-test-users.js"
   },
