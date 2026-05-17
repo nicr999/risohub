@@ -1,6 +1,12 @@
 // ============================================================
 // RISO HUB — scripts/migrate.ts
 // Runs all pending migrations on deploy.
+//
+// Uses an idempotent QueryInterface wrapper so migrations are
+// safe to re-run after partial failures:
+//   - createTable  → uses IF NOT EXISTS
+//   - addColumn    → skips if column already exists (PG 42701)
+//   - addIndex     → skips if index already exists (PG 42P07/42710)
 // ============================================================
 
 import { Sequelize, QueryInterface } from 'sequelize';
@@ -31,8 +37,57 @@ interface Migration {
   down: (qi: QueryInterface) => Promise<void>;
 }
 
+function pgCode(err: any): string | undefined {
+  return err?.original?.code ?? err?.code;
+}
+
+// Wraps QueryInterface so DDL statements are idempotent.
+// Partial failures from previous deploy attempts won't block retries.
+function makeIdempotent(qi: QueryInterface): QueryInterface {
+  return new Proxy(qi, {
+    get(target: any, prop: string) {
+      if (prop === 'createTable') {
+        return (tableName: string, attributes: object, options?: object) =>
+          target.createTable(tableName, attributes, { ...options, ifNotExists: true });
+      }
+
+      if (prop === 'addColumn') {
+        return async (...args: any[]) => {
+          try {
+            return await target.addColumn(...args);
+          } catch (err) {
+            if (pgCode(err) === '42701') {
+              console.log(`[Migrate]   ↳ column already exists, skipping`);
+              return;
+            }
+            throw err;
+          }
+        };
+      }
+
+      if (prop === 'addIndex') {
+        return async (...args: any[]) => {
+          try {
+            return await target.addIndex(...args);
+          } catch (err) {
+            const code = pgCode(err);
+            if (code === '42P07' || code === '42710') {
+              console.log(`[Migrate]   ↳ index already exists, skipping`);
+              return;
+            }
+            throw err;
+          }
+        };
+      }
+
+      const value = target[prop];
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+  });
+}
+
 async function run() {
-  const qi = sequelize.getQueryInterface();
+  const qi = makeIdempotent(sequelize.getQueryInterface());
 
   // Ensure migrations tracking table exists
   await sequelize.query(`
