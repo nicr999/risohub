@@ -113,7 +113,7 @@ EPCRecord.init({
   fetchedBy: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
   fetchedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   raw: { type: DataTypes.JSONB },
-}, { sequelize, modelName: 'EPCRecord', tableName: 'epc_records', underscored: true });
+}, { sequelize, modelName: 'EPCRecord', tableName: 'epc_records' });
 
 // ─────────────────────────────────────────────
 // BUS ELIGIBILITY
@@ -178,4 +178,4 @@ BUSEligibility.init({
   assessedBy: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
   assessedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   notes: { type: DataTypes.TEXT },
-}, { sequelize, modelName: 'BUSEligibility', tableName: 'bus_eligibility', underscored: true });
+}, { sequelize, modelName: 'BUSEligibility', tableName: 'bus_eligibility' });
