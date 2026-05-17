@@ -38,7 +38,7 @@ const STATUS_COLOURS: Record<string, string> = {
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const projectId = parseInt(id!);
+  const projectId = id!; // UUIDs — never parseInt
 
   const [project, setProject] = useState<any>(null);
   const [compliance, setCompliance] = useState<any>(null);
