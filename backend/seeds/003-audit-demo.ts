@@ -36,6 +36,24 @@ async function seedAuditDemo(): Promise<void> {
     process.exit(1);
   }
 
+  // ── Cleanup any previous seed data for these projects ─────────────────────
+  const ids = [p1.id, p2.id, p3.id];
+  for (const id of ids) {
+    await q(`DELETE FROM commissioning_checklist WHERE project_id = $1`, [id]);
+    await q(`DELETE FROM heat_loss_summaries WHERE project_id = $1`, [id]);
+    await q(`DELETE FROM epc_records WHERE project_id = $1`, [id]);
+    await q(`DELETE FROM bus_eligibility WHERE project_id = $1`, [id]);
+    await q(`DELETE FROM mcs_registrations WHERE project_id = $1`, [id]);
+    await q(`DELETE FROM schedules WHERE project_id = $1`, [id]);
+    await q(`DELETE FROM satisfaction_surveys WHERE project_id = $1`, [id]);
+    await q(`DELETE FROM customer_comms_log WHERE project_id = $1`, [id]);
+    await q(`DELETE FROM subcontractor_assignments WHERE project_id = $1`, [id]);
+  }
+  // Clean up subcontractors added by this seed (by email)
+  await q(`DELETE FROM subcontractors WHERE email IN ($1,$2)`,
+    ['dave@norriselectrical.co.uk', 'terry@twplumbing.co.uk']);
+  console.log('✅ Previous audit seed data cleared');
+
   // ── Heat Loss Summaries ────────────────────────────────────────────────────
 
   await q(`INSERT INTO heat_loss_summaries
