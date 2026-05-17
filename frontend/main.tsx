@@ -5,8 +5,11 @@
 
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 import RisoHub from "./RisoHub";
+import { AuthGuard } from "./auth/useAuth";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
 import "./index.css";
 
 // Attach JWT from localStorage to every axios request automatically
@@ -21,7 +24,12 @@ axios.interceptors.request.use(config => {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RisoHub />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/projects/:id" element={<AuthGuard><ProjectDetailPage /></AuthGuard>} />
+        <Route path="/*" element={<RisoHub />} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
 );
 

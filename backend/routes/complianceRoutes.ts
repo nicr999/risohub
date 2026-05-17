@@ -5,8 +5,9 @@
 // ============================================================
 
 import { Router, Request, Response } from 'express';
-import { ChecklistItem, Document, Signature } from '../models';
+import { ChecklistItem, Document, Signature, Complaint } from '../models';
 import { HeatLossSummary, MCSRegistration } from '../models/newModels';
+import { EPCRecord } from '../models/EPCAndBUSModels';
 import { authenticate } from '../auth/authMiddleware';
 
 const router = Router();
@@ -21,12 +22,14 @@ router.get('/summary/:projectId', authenticate, async (req: Request, res: Respon
   try {
     const projectId = parseInt(req.params.projectId);
 
-    const [checklistItems, documents, signatures, heatLoss, mcsReg] = await Promise.all([
+    const [checklistItems, documents, signatures, heatLoss, mcsReg, epcRecord, openComplaints] = await Promise.all([
       ChecklistItem.findAll({ where: { projectId }, order: [['section', 'ASC'], ['ref', 'ASC']] }),
       Document.findAll({ where: { projectId }, order: [['generatedAt', 'DESC']] }),
       Signature.findAll({ where: { projectId }, order: [['createdAt', 'DESC']] }),
       HeatLossSummary.findOne({ where: { projectId } }),
       MCSRegistration.findOne({ where: { projectId } }),
+      EPCRecord.findOne({ where: { projectId } }),
+      Complaint.count({ where: { projectId, status: 'open' } }),
     ]);
 
     // ── Checklist stats ──────────────────────────────────────
@@ -100,6 +103,8 @@ router.get('/summary/:projectId', authenticate, async (req: Request, res: Respon
       hasHeatLoss: !!heatLoss,
       hasMCSRegistration: !!mcsReg,
       mcsNumber: mcsReg?.mcsNumber || null,
+      hasEPC: !!epcRecord,
+      openComplaints,
     });
   } catch (err) {
     console.error(err);

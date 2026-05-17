@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth, AuthGuard } from "./auth/useAuth";
 import LoginPage from "./auth/LoginPage";
 import TwoFactorSetupPanel from "./components/TwoFactorSetupPanel";
@@ -300,6 +301,7 @@ function ProjectsView({
   onOpenFiles: (projectId: string) => void;
   userRole: string;
 }) {
+  const routerNav = useNavigate();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
@@ -363,25 +365,23 @@ function ProjectsView({
             </div>
             <div style={styles.projectCardActions}>
               <button
+                style={{ ...styles.cardActionBtn, background: '#7A8465', color: '#fff', fontWeight: 700 }}
+                onClick={() => routerNav(`/projects/${p.id}`)}
+              >
+                Open Project
+              </button>
+              <button
                 style={styles.cardActionBtn}
                 onClick={() => onOpenChecklist(p.id)}
               >
-                ✓ Compliance
+                ✓ Checklist
               </button>
               {["Admin", "Surveyor", "Auditor"].includes(userRole) && (
                 <button
                   style={styles.cardActionBtn}
                   onClick={() => onOpenDocuments(p.id)}
                 >
-                  ⊞ Documents
-                </button>
-              )}
-              {["Admin", "Surveyor", "Installer"].includes(userRole) && (
-                <button
-                  style={styles.cardActionBtn}
-                  onClick={() => onOpenFiles(p.id)}
-                >
-                  ⊟ Files
+                  ⊞ Docs
                 </button>
               )}
             </div>

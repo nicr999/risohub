@@ -40,11 +40,20 @@ interface MCSChecklistProps {
 
 // ─── API helpers ──────────────────────────────────────────────────────────────
 
+function authHeader(): Record<string, string> {
+  const token = localStorage.getItem("riso_access_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function apiGetChecklist(projectId: string): Promise<ChecklistItem[]> {
-  const res = await fetch(`/api/checklist/${projectId}`);
+  const res = await fetch(`/api/checklist/${projectId}`, {
+    headers: authHeader(),
+  });
   if (!res.ok) throw new Error("Failed to load checklist");
   const data = await res.json();
-  return data.map((item: ChecklistItem & { updatedAt: string }) => ({
+  // API returns { items: [...], ... } or a plain array
+  const itemList: any[] = Array.isArray(data) ? data : (data.items ?? []);
+  return itemList.map((item: ChecklistItem & { updatedAt: string }) => ({
     ...item,
     updatedAt: item.updatedAt ? new Date(item.updatedAt) : null,
     naReason: item.naReason ?? "",
@@ -57,7 +66,7 @@ async function apiUpdateItem(
 ): Promise<ChecklistItem> {
   const res = await fetch(`/api/checklist/item/${itemId}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeader() },
     body: JSON.stringify(patch),
   });
   if (!res.ok) throw new Error("Failed to update checklist item");

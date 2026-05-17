@@ -66,8 +66,15 @@ interface DocumentGeneratorProps {
 
 // ─── API helpers ──────────────────────────────────────────────────────────────
 
+function authHeader(): Record<string, string> {
+  const token = localStorage.getItem("riso_access_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function apiGetVersionHistory(projectId: string): Promise<DocumentVersion[]> {
-  const res = await fetch(`/api/documents?projectId=${projectId}&docType=handover`);
+  const res = await fetch(`/api/documents?projectId=${projectId}&docType=handover`, {
+    headers: authHeader(),
+  });
   if (!res.ok) throw new Error("Failed to load document history");
   const data = await res.json();
   return data.map((d: DocumentVersion & { generatedAt: string }) => ({
@@ -79,7 +86,7 @@ async function apiGetVersionHistory(projectId: string): Promise<DocumentVersion[
 async function apiGenerateDocument(req: GenerateRequest): Promise<GenerateResponse> {
   const res = await fetch("/api/documents/generate", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeader() },
     body: JSON.stringify(req),
   });
   if (!res.ok) throw new Error("Document generation failed");
