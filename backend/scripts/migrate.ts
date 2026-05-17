@@ -1,8 +1,6 @@
 // ============================================================
 // RISO HUB — scripts/migrate.ts
 // Runs all pending migrations on deploy.
-// Each migration is wrapped in a transaction so a partial failure
-// rolls back completely — no more half-applied migrations.
 // ============================================================
 
 import { Sequelize, QueryInterface } from 'sequelize';
@@ -62,10 +60,6 @@ async function run() {
     }
 
     console.log(`[Migrate] Running: ${file}…`);
-
-    // Wrap in a raw transaction so any partial failure is fully rolled back.
-    // Postgres DDL (CREATE TABLE, ALTER TABLE, etc.) IS transactional.
-    await sequelize.query('BEGIN');
     try {
       const migration: Migration = require(path.join(MIGRATIONS_DIR, file));
       await migration.up(qi);
@@ -73,11 +67,9 @@ async function run() {
         `INSERT INTO ${MIGRATIONS_TABLE} (name) VALUES (:name)`,
         { replacements: { name: file } }
       );
-      await sequelize.query('COMMIT');
       console.log(`[Migrate] ✓ Applied: ${file}`);
       applied++;
     } catch (err) {
-      await sequelize.query('ROLLBACK').catch(() => {});
       console.error(`[Migrate] ✗ Failed: ${file}`, err);
       process.exit(1);
     }
