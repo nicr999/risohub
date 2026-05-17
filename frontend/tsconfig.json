@@ -20,5 +20,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.jsx"]
+  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.jsx"],
+  "exclude": ["node_modules", "e2e", "fixtures", "playwright.config.ts"]
 }

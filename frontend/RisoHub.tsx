@@ -18,11 +18,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useAuth, AuthGuard } from "./auth/useAuth";
 import LoginPage from "./auth/LoginPage";
 import TwoFactorSetupPanel from "./components/TwoFactorSetupPanel";
-import MCSChecklist from "./MCSChecklist";
-import DocumentGenerator from "./DocumentGenerator";
-import FileUploadModule from "./FileUploadModule";
-import TeamManagement from "./TeamManagement";
-import SettingsPage from "./SettingsPage";
+import MCSChecklist from "./components/MCSChecklist";
+import DocumentGenerator from "./components/DocumentGenerator";
+import FileUploadModule from "./components/FileUploadModule";
+import TeamManagement from "./components/TeamManagement";
+import SettingsPage from "./components/SettingsPage";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
