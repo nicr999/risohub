@@ -11,7 +11,8 @@
     "start:test": "NODE_ENV=test node dist/server.js",
     "migrate": "sequelize-cli db:migrate",
     "migrate:undo": "sequelize-cli db:migrate:undo",
-    "seed": "sequelize-cli db:seed:all",
+    "seed": "node dist/seeds/001-seed.js",
+    "seed:legacy": "sequelize-cli db:seed:all",
     "seed:test": "sequelize-cli db:seed --seed seeders/20240101-e2e-test-users.js"
   },
   "dependencies": {
