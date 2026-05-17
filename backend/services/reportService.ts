@@ -3,8 +3,10 @@
 // Generates PDF reports using pdfmake and uploads to S3
 // ============================================================
 
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pdfMake = require('pdfmake/build/pdfmake') as any;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pdfFonts = require('pdfmake/build/vfs_fonts') as any;
 import AWS from 'aws-sdk';
 import { Report } from '../models';
 
