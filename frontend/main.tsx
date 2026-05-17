@@ -5,8 +5,19 @@
 
 import React from "react";
 import ReactDOM from "react-dom/client";
+import axios from "axios";
 import RisoHub from "./RisoHub";
-import "./index.css"; // Ensure Satoshi font is imported here
+import "./index.css";
+
+// Attach JWT from localStorage to every axios request automatically
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem("riso_access_token");
+  if (token) {
+    config.headers = config.headers ?? {};
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
