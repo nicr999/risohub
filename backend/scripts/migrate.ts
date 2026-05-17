@@ -1,7 +1,8 @@
 // ============================================================
-// RISO HUB — src/scripts/migrate.ts
-// Runs all pending Sequelize migrations on deploy.
-// Called by Dockerfile CMD before starting the server.
+// RISO HUB — scripts/migrate.ts
+// Runs all pending migrations on deploy.
+// Each migration is wrapped in a transaction so a partial failure
+// rolls back completely — no more half-applied migrations.
 // ============================================================
 
 import { Sequelize, QueryInterface } from 'sequelize';
@@ -47,10 +48,10 @@ async function run() {
   const [ran] = await sequelize.query(`SELECT name FROM ${MIGRATIONS_TABLE}`);
   const ranNames = new Set((ran as any[]).map(r => r.name));
 
-  // Read migration files
+  // Read migration files — only compiled .js, sorted by filename
   const files = fs.readdirSync(MIGRATIONS_DIR)
     .filter(f => f.endsWith('.js'))
-    .sort(); // runs in filename order (001-, 002-, etc.)
+    .sort();
 
   let applied = 0;
 
@@ -61,6 +62,10 @@ async function run() {
     }
 
     console.log(`[Migrate] Running: ${file}…`);
+
+    // Wrap in a raw transaction so any partial failure is fully rolled back.
+    // Postgres DDL (CREATE TABLE, ALTER TABLE, etc.) IS transactional.
+    await sequelize.query('BEGIN');
     try {
       const migration: Migration = require(path.join(MIGRATIONS_DIR, file));
       await migration.up(qi);
@@ -68,9 +73,11 @@ async function run() {
         `INSERT INTO ${MIGRATIONS_TABLE} (name) VALUES (:name)`,
         { replacements: { name: file } }
       );
+      await sequelize.query('COMMIT');
       console.log(`[Migrate] ✓ Applied: ${file}`);
       applied++;
     } catch (err) {
+      await sequelize.query('ROLLBACK').catch(() => {});
       console.error(`[Migrate] ✗ Failed: ${file}`, err);
       process.exit(1);
     }
