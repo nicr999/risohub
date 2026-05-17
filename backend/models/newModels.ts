@@ -4,7 +4,7 @@
 // ============================================================
 
 import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '../config/database';
+import sequelize from '../config/database';
 
 // ─────────────────────────────────────────────
 // COMPANIES (tenant scaffold — single-tenant for now)
