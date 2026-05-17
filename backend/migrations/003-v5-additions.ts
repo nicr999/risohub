@@ -30,7 +30,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('heat_loss_summaries', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     project_id: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'projects', key: 'id' }, onDelete: 'CASCADE',
     },
     design_flow_temp: { type: DataTypes.FLOAT },
@@ -39,9 +39,9 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     ground_floor_area: { type: DataTypes.FLOAT },
     fabric_loss_kw: { type: DataTypes.FLOAT },
     ventilation_loss_kw: { type: DataTypes.FLOAT },
-    uploaded_file_id: { type: DataTypes.INTEGER, references: { model: 'files', key: 'id' }, onDelete: 'SET NULL' },
+    uploaded_file_id: { type: DataTypes.UUID, references: { model: 'files', key: 'id' }, onDelete: 'SET NULL' },
     software_used: { type: DataTypes.STRING },
-    calculated_by: { type: DataTypes.INTEGER, references: { model: 'users', key: 'id' }, onDelete: 'SET NULL' },
+    calculated_by: { type: DataTypes.UUID, references: { model: 'users', key: 'id' }, onDelete: 'SET NULL' },
     calculated_at: { type: DataTypes.DATE },
     notes: { type: DataTypes.TEXT },
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
@@ -54,12 +54,12 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('mcs_registrations', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     project_id: {
-      type: DataTypes.INTEGER, allowNull: false, unique: true,
+      type: DataTypes.UUID, allowNull: false, unique: true,
       references: { model: 'projects', key: 'id' }, onDelete: 'CASCADE',
     },
     mcs_number: { type: DataTypes.STRING, allowNull: false },
     registered_at: { type: DataTypes.DATE },
-    registered_by: { type: DataTypes.INTEGER, references: { model: 'users', key: 'id' }, onDelete: 'SET NULL' },
+    registered_by: { type: DataTypes.UUID, references: { model: 'users', key: 'id' }, onDelete: 'SET NULL' },
     certificate_url: { type: DataTypes.STRING },
     notes: { type: DataTypes.TEXT },
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
@@ -70,11 +70,11 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('schedules', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     project_id: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'projects', key: 'id' }, onDelete: 'CASCADE',
     },
     user_id: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'users', key: 'id' }, onDelete: 'CASCADE',
     },
     type: {
@@ -86,7 +86,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     all_day: { type: DataTypes.BOOLEAN, defaultValue: false },
     notes: { type: DataTypes.TEXT },
     created_by: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'users', key: 'id' }, onDelete: 'RESTRICT',
     },
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
@@ -134,7 +134,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('subcontractor_assignments', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     project_id: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'projects', key: 'id' }, onDelete: 'CASCADE',
     },
     subcontractor_id: {
@@ -143,7 +143,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     },
     role: { type: DataTypes.STRING },
     assigned_by: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'users', key: 'id' }, onDelete: 'RESTRICT',
     },
     assigned_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
@@ -157,16 +157,16 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('checklist_evidence', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     checklist_item_id: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'checklists', key: 'id' }, onDelete: 'CASCADE',
     },
     file_id: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'files', key: 'id' }, onDelete: 'CASCADE',
     },
     note: { type: DataTypes.TEXT },
     uploaded_by: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'users', key: 'id' }, onDelete: 'RESTRICT',
     },
     uploaded_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
@@ -180,7 +180,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('satisfaction_surveys', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     project_id: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'projects', key: 'id' }, onDelete: 'CASCADE',
     },
     token_hash: { type: DataTypes.STRING, allowNull: false, unique: true },
@@ -195,7 +195,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     would_recommend: { type: DataTypes.BOOLEAN },
     nps_score: { type: DataTypes.INTEGER },
     sent_by: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'users', key: 'id' }, onDelete: 'RESTRICT',
     },
     created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
@@ -218,7 +218,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     period_start: { type: DataTypes.DATEONLY },
     period_end: { type: DataTypes.DATEONLY },
     generated_by: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'users', key: 'id' }, onDelete: 'RESTRICT',
     },
     generated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },

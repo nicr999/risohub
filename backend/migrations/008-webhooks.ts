@@ -10,7 +10,7 @@ export async function up(queryInterface: QueryInterface) {
     description: { type: DataTypes.TEXT, allowNull: true },
     active: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
     createdBy: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'users', key: 'id' }, onDelete: 'CASCADE',
     },
     createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },

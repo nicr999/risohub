@@ -11,7 +11,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('epc_records', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     project_id: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'projects', key: 'id' }, onDelete: 'CASCADE',
     },
     lmk_key: { type: DataTypes.STRING, allowNull: false },
@@ -37,7 +37,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     lodgement_date: { type: DataTypes.DATEONLY },
     inspection_date: { type: DataTypes.DATEONLY },
     fetched_by: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'users', key: 'id' }, onDelete: 'RESTRICT',
     },
     fetched_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
@@ -54,7 +54,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   await queryInterface.createTable('bus_eligibility', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     project_id: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'projects', key: 'id' }, onDelete: 'CASCADE',
     },
     epc_record_id: {
@@ -70,7 +70,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     warnings: { type: DataTypes.ARRAY(DataTypes.STRING), defaultValue: [] },
     grant_amount: { type: DataTypes.INTEGER },
     assessed_by: {
-      type: DataTypes.INTEGER, allowNull: false,
+      type: DataTypes.UUID, allowNull: false,
       references: { model: 'users', key: 'id' }, onDelete: 'RESTRICT',
     },
     assessed_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
