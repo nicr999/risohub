@@ -13,7 +13,6 @@ import axios from 'axios';
 import MCSChecklist from '../components/MCSChecklist';
 import FileUploadModule from '../components/FileUploadModule';
 import DocumentGenerator from '../components/DocumentGenerator';
-import SignatureRequestPanel from '../components/SignatureRequestPanel';
 import ProjectNotesPanel from '../components/ProjectNotesPanel';
 import ProjectComplaintsTab from '../components/ProjectComplaintsTab';
 import HeatLossSummaryPanel from '../components/HeatLossSummaryPanel';
@@ -169,7 +168,6 @@ export default function ProjectDetailPage() {
               ] : []}
               onDocumentGenerated={load}
             />
-            <SignatureRequestPanel projectId={projectId} />
           </div>
         )}
 

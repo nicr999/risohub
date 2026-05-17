@@ -4,7 +4,8 @@
 // ============================================================
 
 import { Router, Request, Response } from 'express';
-import { HeatLossSummary, File, User } from '../models';
+import { FileModel, User } from '../models';
+import { HeatLossSummary } from '../models/newModels';
 import { authenticate, authorize } from '../auth/authMiddleware';
 import { logAudit } from '../services/auditService';
 import { eventBus } from '../services/eventBus';
@@ -16,10 +17,6 @@ router.get('/:projectId', authenticate, async (req: Request, res: Response) => {
   try {
     const summary = await HeatLossSummary.findOne({
       where: { projectId: req.params.projectId },
-      include: [
-        { model: File, as: 'uploadedFile', attributes: ['id', 'fileUrl', 'category', 'uploadedAt'] },
-        { model: User, as: 'calculator', attributes: ['id', 'name', 'email'] },
-      ],
     });
 
     if (!summary) return res.status(404).json({ error: 'No heat loss summary found for this project' });

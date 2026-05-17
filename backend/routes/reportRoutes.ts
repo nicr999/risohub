@@ -5,7 +5,8 @@
 
 import { Router, Request, Response } from 'express';
 import { Op } from 'sequelize';
-import { Report, Project, Complaint, Qualification, Checklist, User, SatisfactionSurvey } from '../models';
+import { Project, Complaint, Qualification, ChecklistItem, User } from '../models';
+import { Report, SatisfactionSurvey } from '../models/newModels';
 import { authenticate, authorize } from '../auth/authMiddleware';
 import { logAudit } from '../services/auditService';
 import { generateReportPdf } from '../services/reportService';
@@ -71,7 +72,7 @@ router.post('/generate', authenticate, authorize('Admin', 'Auditor'), async (req
         attributes: ['id', 'customerName', 'address', 'status', 'projectType', 'createdAt'],
       });
 
-      const checklistStats = await Checklist.findAll({
+      const checklistStats = await ChecklistItem.findAll({
         where: { status: 'noncompliant' },
         attributes: ['projectId', 'key', 'name', 'status'],
       });

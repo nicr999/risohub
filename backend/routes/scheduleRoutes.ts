@@ -5,7 +5,8 @@
 
 import { Router, Request, Response } from 'express';
 import { Op } from 'sequelize';
-import { Schedule, Project, User } from '../models';
+import { Project, User } from '../models';
+import { Schedule } from '../models/newModels';
 import { authenticate, authorize } from '../auth/authMiddleware';
 import { logAudit } from '../services/auditService';
 import { sendNotification } from '../services/notificationService';

@@ -4,7 +4,8 @@
 // ============================================================
 
 import { Router, Request, Response } from 'express';
-import { Subcontractor, SubcontractorQualification, SubcontractorAssignment, Project, User } from '../models';
+import { Project, User } from '../models';
+import { Subcontractor, SubcontractorQualification, SubcontractorAssignment } from '../models/newModels';
 import { authenticate, authorize } from '../auth/authMiddleware';
 import { logAudit } from '../services/auditService';
 import AWS from 'aws-sdk';

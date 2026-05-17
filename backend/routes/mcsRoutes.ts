@@ -4,7 +4,8 @@
 // ============================================================
 
 import { Router, Request, Response } from 'express';
-import { MCSRegistration, User, Project } from '../models';
+import { User, Project } from '../models';
+import { MCSRegistration } from '../models/newModels';
 import { authenticate, authorize } from '../auth/authMiddleware';
 import { logAudit } from '../services/auditService';
 import { eventBus } from '../services/eventBus';

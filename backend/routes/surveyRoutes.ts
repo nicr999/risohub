@@ -6,7 +6,8 @@
 import { Router, Request, Response } from 'express';
 import { Op } from 'sequelize';
 import crypto from 'crypto';
-import { SatisfactionSurvey, Project, User } from '../models';
+import { Project, User } from '../models';
+import { SatisfactionSurvey } from '../models/newModels';
 import { authenticate, authorize } from '../auth/authMiddleware';
 import { logAudit } from '../services/auditService';
 import { sendSatisfactionSurvey } from '../services/emailService';

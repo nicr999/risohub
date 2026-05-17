@@ -6,7 +6,8 @@
 import { Router, Request, Response } from 'express';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { ChecklistEvidence, ChecklistItem, File, User } from '../models';
+import { ChecklistItem, FileModel, User } from '../models';
+import { ChecklistEvidence } from '../models/newModels';
 import { authenticate, authorize } from '../auth/authMiddleware';
 import { logAudit } from '../services/auditService';
 
