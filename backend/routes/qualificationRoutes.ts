@@ -21,8 +21,6 @@ const s3 = new S3Client({
 
 const BUCKET = process.env.AWS_S3_BUCKET!;
 
-User.hasMany(Qualification, { foreignKey: 'staffId', as: 'qualifications' });
-
 // ─── Pre-seeded qualification types ──────────────────────────────────────────
 
 export const QUALIFICATION_TYPES = [
