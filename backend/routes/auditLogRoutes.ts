@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Op } from 'sequelize';
 import { authenticate, authorize } from '../auth/authMiddleware';
-import { AuditLog } from '../models/index';
+import { AuditLog, User } from '../models/index';
 
 
 const router = Router();

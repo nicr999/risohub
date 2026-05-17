@@ -27,7 +27,7 @@ router.get('/item/:itemId/evidence', authenticate, async (req: Request, res: Res
       where: { checklistItemId: req.params.itemId },
       include: [
         {
-          model: File,
+          model: FileModel,
           as: 'file',
           attributes: ['id', 'fileUrl', 'category', 'uploadedAt'],
         },
@@ -61,7 +61,7 @@ router.post('/item/:itemId/evidence', authenticate, authorize('Admin', 'Surveyor
     if (!item) return res.status(404).json({ error: 'Checklist item not found' });
 
     // Verify file exists
-    const file = await File.findByPk(fileId);
+    const file = await FileModel.findByPk(fileId);
     if (!file) return res.status(404).json({ error: 'File not found' });
 
     const evidence = await ChecklistEvidence.create({
@@ -85,7 +85,7 @@ router.post('/item/:itemId/evidence', authenticate, authorize('Admin', 'Surveyor
     // Re-fetch with includes
     const full = await ChecklistEvidence.findByPk(evidence.id, {
       include: [
-        { model: File, as: 'file', attributes: ['id', 'fileUrl', 'category'] },
+        { model: FileModel, as: 'file', attributes: ['id', 'fileUrl', 'category'] },
         { model: User, as: 'uploader', attributes: ['id', 'name'] },
       ],
     });

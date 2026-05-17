@@ -8,7 +8,7 @@ import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { Readable } from 'stream';
 
 import { authenticate, authorize, require2FA } from '../auth/authMiddleware';
-import { Document, ChecklistItem } from '../models/index';
+import { Document, ChecklistItem, Project, User } from '../models/index';
 
 
 import { logAudit } from '../services/auditService';

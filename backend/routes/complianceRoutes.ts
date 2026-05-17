@@ -5,6 +5,7 @@
 // ============================================================
 
 import { Router, Request, Response } from 'express';
+import { Op } from 'sequelize';
 import { ChecklistItem, Document, Signature, Complaint } from '../models';
 import { HeatLossSummary, MCSRegistration } from '../models/newModels';
 import { EPCRecord } from '../models/EPCAndBUSModels';
@@ -29,7 +30,7 @@ router.get('/summary/:projectId', authenticate, async (req: Request, res: Respon
       HeatLossSummary.findOne({ where: { projectId } }),
       MCSRegistration.findOne({ where: { projectId } }),
       EPCRecord.findOne({ where: { projectId } }),
-      Complaint.count({ where: { projectId, status: 'open' } }),
+      Complaint.count({ where: { projectId, status: { [Op.in]: ['new', 'in_progress', 'pending_info', 'escalated'] } } }),
     ]);
 
     // ── Checklist stats ──────────────────────────────────────

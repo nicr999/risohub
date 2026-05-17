@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { logAudit } from '../services/auditService';
 import { authenticate, authorize } from '../auth/authMiddleware';
 import { sendUserInvite } from '../services/emailService';
+import { User } from '../models/index';
 
 const router = Router();
 const BCRYPT_ROUNDS = 12;
