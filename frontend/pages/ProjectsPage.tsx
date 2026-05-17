@@ -41,7 +41,7 @@ export default function ProjectsPage() {
   const load = useCallback(async () => {
     try {
       const res = await axios.get('/api/projects');
-      setProjects(res.data);
+      setProjects(res.data.projects ?? res.data);
     } catch { }
     setLoading(false);
   }, []);

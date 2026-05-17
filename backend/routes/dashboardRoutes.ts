@@ -6,9 +6,10 @@
 import { Router, Request, Response } from 'express';
 import { Op } from 'sequelize';
 import {
-  Project, Checklist, Complaint, Qualification,
-  Signature, User, Schedule, SatisfactionSurvey,
+  Project, ChecklistItem, Complaint, Qualification,
+  Signature, User,
 } from '../models';
+import { Schedule, SatisfactionSurvey } from '../models/newModels';
 import { authenticate } from '../auth/authMiddleware';
 
 const router = Router();
@@ -46,7 +47,7 @@ router.get('/summary', authenticate, async (req: Request, res: Response) => {
         include: [
           { model: User, as: 'assignee', attributes: ['id', 'name'] },
           {
-            model: Checklist,
+            model: ChecklistItem,
             as: 'checklistItems',
             attributes: ['id', 'status', 'required'],
           },

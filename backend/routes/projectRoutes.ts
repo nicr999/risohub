@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import { authenticate, authorize } from '../auth/authMiddleware';
 
 
-import { ChecklistItem, FileModel, AuditLog } from '../models/index';
+import { Project, User, ChecklistItem, FileModel, AuditLog } from '../models/index';
 import { mis3005Items } from '../checklist/mis3005Items';
 import { logAudit } from '../services/auditService';
 import { fireWebhook } from '../services/webhookService';
