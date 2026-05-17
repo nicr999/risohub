@@ -82,6 +82,6 @@ databases:
   - name: risohub-db
     databaseName: risohub
     user: risohub
-    plan: standard              # 4GB RAM, daily backups, point-in-time recovery
+    plan: free                  # Free tier — upgrade for production
     region: frankfurt
     ipAllowList: []             # Only Render internal network
