@@ -153,7 +153,19 @@ export default function ProjectDetailPage() {
 
         {activeTab === 'documents' && (
           <div>
-            <DocumentGenerator projectId={projectId} readyForHandover={compliance?.readyForHandover} onGenerated={load} />
+            <DocumentGenerator
+              projectId={String(projectId)}
+              projectName={project.customerName}
+              customerName={project.customerName}
+              projectAddress={`${project.address}, ${project.postcode}`}
+              currentStage={project.status}
+              prerequisitesMet={compliance ? [
+                { key: 'heat_loss', label: 'Heat loss calculation', met: !!compliance.hasHeatLoss, hint: 'Complete a heat loss calculation in the Overview tab' },
+                { key: 'checklist', label: 'Commissioning checklist 100%', met: compliance.compliancePercentage === 100, hint: 'All checklist items must be marked pass or N/A' },
+                { key: 'mcs', label: 'MCS registration recorded', met: !!compliance.hasMCSRegistration, hint: 'Add MCS number in the Overview tab' },
+              ] : []}
+              onDocumentGenerated={load}
+            />
             <SignatureRequestPanel projectId={projectId} />
           </div>
         )}
