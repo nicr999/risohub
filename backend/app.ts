@@ -155,42 +155,6 @@ app.use('/api/invoices',      invoiceRoutes);
 app.use('/api/device-tokens', deviceTokenRoutes);
 app.use('/api/tenants',       tenantRoutes);
 
-// ─── One-time admin seed endpoint ────────────────────────────────────────────
-// Remove this block after seeding. Protected by SEED_SECRET env var.
-
-app.post('/internal/seed-admin', async (req, res) => {
-  const secret = process.env.SEED_SECRET;
-  if (!secret || req.headers['x-seed-secret'] !== secret) {
-    return res.status(403).json({ error: 'Forbidden' });
-  }
-  try {
-    const bcrypt = await import('bcrypt');
-    const { v4: uuidv4 } = await import('uuid');
-    const { User } = await import('./models/index');
-    const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@risohome.co.uk';
-    const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'ChangeMe123!';
-    const existing = await User.findOne({ where: { email: adminEmail } });
-    if (existing) {
-      return res.json({ status: 'already_exists', email: adminEmail });
-    }
-    const passwordHash = await bcrypt.hash(adminPassword, 12);
-    await User.create({
-      id: uuidv4(),
-      name: 'RISO Admin',
-      email: adminEmail,
-      role: 'Admin',
-      passwordHash,
-      twoFactorEnabled: false,
-      active: true,
-      failedLoginAttempts: 0,
-    });
-    return res.json({ status: 'created', email: adminEmail });
-  } catch (err: any) {
-    console.error('Seed failed:', err);
-    return res.status(500).json({ error: err.message });
-  }
-});
-
 // ─── 404 handler ─────────────────────────────────────────────────────────────
 
 app.use((_req, res) => {
