@@ -636,6 +636,92 @@ Tenant.init(
   { sequelize, tableName: 'tenants', timestamps: true }
 );
 
+// ─── Report ───────────────────────────────────────────────────────────────────
+
+export class Report extends Model {
+  public id!: number;
+  public type!: string;
+  public title!: string;
+  public periodStart!: string | null;
+  public periodEnd!: string | null;
+  public generatedBy!: string;
+  public generatedAt!: Date;
+  public pdfUrl!: string | null;
+  public filters!: object | null;
+  public summary!: object | null;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+Report.init(
+  {
+    id:          { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    type:        { type: DataTypes.ENUM('monthly_compliance', 'quarterly_compliance', 'complaints_summary', 'qualifications_audit', 'project_pipeline', 'custom'), allowNull: false },
+    title:       { type: DataTypes.STRING, allowNull: false },
+    periodStart: { type: DataTypes.DATEONLY, field: 'period_start' },
+    periodEnd:   { type: DataTypes.DATEONLY, field: 'period_end' },
+    generatedBy: { type: DataTypes.UUID, allowNull: false, field: 'generated_by' },
+    generatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW, field: 'generated_at' },
+    pdfUrl:      { type: DataTypes.STRING, field: 'pdf_url' },
+    filters:     { type: DataTypes.JSONB },
+    summary:     { type: DataTypes.JSONB },
+  },
+  { sequelize, tableName: 'reports', timestamps: true, underscored: true }
+);
+
+// ─── WebhookEndpoint ──────────────────────────────────────────────────────────
+
+export class WebhookEndpoint extends Model {
+  public id!: number;
+  public url!: string;
+  public secret!: string;
+  public events!: string;
+  public description!: string | null;
+  public active!: boolean;
+  public createdBy!: string;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+WebhookEndpoint.init(
+  {
+    id:          { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    url:         { type: DataTypes.TEXT, allowNull: false },
+    secret:      { type: DataTypes.TEXT, allowNull: false },
+    events:      { type: DataTypes.TEXT, allowNull: false, defaultValue: '[]' },
+    description: { type: DataTypes.TEXT },
+    active:      { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+    createdBy:   { type: DataTypes.UUID, allowNull: false },
+  },
+  { sequelize, tableName: 'webhook_endpoints', timestamps: true }
+);
+
+// ─── WebhookDelivery ──────────────────────────────────────────────────────────
+
+export class WebhookDelivery extends Model {
+  public id!: number;
+  public endpointId!: number;
+  public event!: string;
+  public payload!: string;
+  public attempt!: number;
+  public responseStatus!: number | null;
+  public success!: boolean;
+  public errorMessage!: string | null;
+  public deliveredAt!: Date;
+}
+WebhookDelivery.init(
+  {
+    id:             { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    endpointId:     { type: DataTypes.INTEGER, allowNull: false },
+    event:          { type: DataTypes.STRING(100), allowNull: false },
+    payload:        { type: DataTypes.TEXT, allowNull: false },
+    attempt:        { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
+    responseStatus: { type: DataTypes.INTEGER },
+    success:        { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    errorMessage:   { type: DataTypes.TEXT },
+    deliveredAt:    { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+  },
+  { sequelize, tableName: 'webhook_deliveries', timestamps: false }
+);
+
 // ─── Associations (all defined once, here) ────────────────────────────────────
 
 User.hasMany(Project, { foreignKey: 'assignedTo', as: 'projects' });
