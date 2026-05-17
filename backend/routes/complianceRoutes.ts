@@ -5,7 +5,8 @@
 // ============================================================
 
 import { Router, Request, Response } from 'express';
-import { Checklist, Document, Signature, HeatLossSummary, MCSRegistration } from '../models';
+import { ChecklistItem, Document, Signature } from '../models';
+import { HeatLossSummary, MCSRegistration } from '../models/newModels';
 import { authenticate } from '../auth/authMiddleware';
 
 const router = Router();
@@ -21,7 +22,7 @@ router.get('/summary/:projectId', authenticate, async (req: Request, res: Respon
     const projectId = parseInt(req.params.projectId);
 
     const [checklistItems, documents, signatures, heatLoss, mcsReg] = await Promise.all([
-      Checklist.findAll({ where: { projectId }, order: [['section', 'ASC'], ['ref', 'ASC']] }),
+      ChecklistItem.findAll({ where: { projectId }, order: [['section', 'ASC'], ['ref', 'ASC']] }),
       Document.findAll({ where: { projectId }, order: [['generatedAt', 'DESC']] }),
       Signature.findAll({ where: { projectId }, order: [['createdAt', 'DESC']] }),
       HeatLossSummary.findOne({ where: { projectId } }),

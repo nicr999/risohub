@@ -48,14 +48,17 @@ export default function ProjectDetailPage() {
 
   const load = useCallback(async () => {
     try {
-      const [projRes, compRes] = await Promise.all([
-        axios.get(`/api/projects/${projectId}`),
-        axios.get(`/api/compliance/summary/${projectId}`),
-      ]);
+      const projRes = await axios.get(`/api/projects/${projectId}`);
       setProject(projRes.data);
-      setCompliance(compRes.data);
     } catch {
       navigate('/projects');
+      return;
+    }
+    try {
+      const compRes = await axios.get(`/api/compliance/summary/${projectId}`);
+      setCompliance(compRes.data);
+    } catch {
+      // compliance is non-critical — page still loads without it
     } finally {
       setLoading(false);
     }
