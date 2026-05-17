@@ -146,7 +146,13 @@ export default function ProjectDetailPage() {
         )}
 
         {activeTab === 'checklist' && (
-          <MCSChecklist projectId={projectId} onUpdate={load} />
+          <MCSChecklist
+            projectId={String(projectId)}
+            projectName={project.customerName}
+            projectType={project.projectType}
+            currentUserName="Admin"
+            onItemUpdated={load}
+          />
         )}
 
         {activeTab === 'files' && (
