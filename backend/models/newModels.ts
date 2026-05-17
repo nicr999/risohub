@@ -40,7 +40,7 @@ Company.init({
   logoUrl: { type: DataTypes.STRING },
   primaryColour: { type: DataTypes.STRING(7) },
   active: { type: DataTypes.BOOLEAN, defaultValue: true },
-}, { sequelize, modelName: 'Company', tableName: 'companies' });
+}, { sequelize, modelName: 'Company', tableName: 'companies', underscored: true });
 
 // ─────────────────────────────────────────────
 // HEAT LOSS SUMMARY
@@ -97,7 +97,7 @@ HeatLossSummary.init({
   calculatedBy: { type: DataTypes.INTEGER, references: { model: 'users', key: 'id' } },
   calculatedAt: { type: DataTypes.DATE },
   notes: { type: DataTypes.TEXT },
-}, { sequelize, modelName: 'HeatLossSummary', tableName: 'heat_loss_summaries' });
+}, { sequelize, modelName: 'HeatLossSummary', tableName: 'heat_loss_summaries', underscored: true });
 
 // ─────────────────────────────────────────────
 // MCS REGISTRATION
@@ -142,7 +142,7 @@ MCSRegistration.init({
   notes: { type: DataTypes.TEXT },
   submittedToMCS: { type: DataTypes.BOOLEAN, defaultValue: false },
   submittedAt: { type: DataTypes.DATE, allowNull: true },
-}, { sequelize, modelName: 'MCSRegistration', tableName: 'mcs_registrations' });
+}, { sequelize, modelName: 'MCSRegistration', tableName: 'mcs_registrations', underscored: true });
 
 // ─────────────────────────────────────────────
 // SCHEDULE
@@ -189,7 +189,7 @@ Schedule.init({
   allDay: { type: DataTypes.BOOLEAN, defaultValue: false },
   notes: { type: DataTypes.TEXT },
   createdBy: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
-}, { sequelize, modelName: 'Schedule', tableName: 'schedules' });
+}, { sequelize, modelName: 'Schedule', tableName: 'schedules', underscored: true });
 
 // ─────────────────────────────────────────────
 // SUBCONTRACTORS
@@ -231,7 +231,7 @@ Subcontractor.init({
   trades: { type: DataTypes.ARRAY(DataTypes.STRING), defaultValue: [] },
   notes: { type: DataTypes.TEXT },
   active: { type: DataTypes.BOOLEAN, defaultValue: true },
-}, { sequelize, modelName: 'Subcontractor', tableName: 'subcontractors' });
+}, { sequelize, modelName: 'Subcontractor', tableName: 'subcontractors', underscored: true });
 
 // ─────────────────────────────────────────────
 // SUBCONTRACTOR QUALIFICATIONS
@@ -282,7 +282,7 @@ SubcontractorQualification.init({
   neverExpires: { type: DataTypes.BOOLEAN, defaultValue: false },
   fileUrl: { type: DataTypes.STRING },
   notes: { type: DataTypes.TEXT },
-}, { sequelize, modelName: 'SubcontractorQualification', tableName: 'subcontractor_qualifications' });
+}, { sequelize, modelName: 'SubcontractorQualification', tableName: 'subcontractor_qualifications', underscored: true });
 
 // ─────────────────────────────────────────────
 // SUBCONTRACTOR ASSIGNMENTS
@@ -318,7 +318,7 @@ SubcontractorAssignment.init({
   role: { type: DataTypes.STRING },
   assignedBy: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
   assignedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-}, { sequelize, modelName: 'SubcontractorAssignment', tableName: 'subcontractor_assignments' });
+}, { sequelize, modelName: 'SubcontractorAssignment', tableName: 'subcontractor_assignments', underscored: true });
 
 // ─────────────────────────────────────────────
 // CHECKLIST EVIDENCE (photo/file attached to a checklist item)
@@ -354,7 +354,7 @@ ChecklistEvidence.init({
   note: { type: DataTypes.TEXT },
   uploadedBy: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
   uploadedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-}, { sequelize, modelName: 'ChecklistEvidence', tableName: 'checklist_evidence' });
+}, { sequelize, modelName: 'ChecklistEvidence', tableName: 'checklist_evidence', underscored: true });
 
 // ─────────────────────────────────────────────
 // SATISFACTION SURVEYS
@@ -407,7 +407,7 @@ SatisfactionSurvey.init({
   wouldRecommend: { type: DataTypes.BOOLEAN },
   npsScore: { type: DataTypes.INTEGER, validate: { min: 0, max: 10 } },
   sentBy: { type: DataTypes.INTEGER, allowNull: false, references: { model: 'users', key: 'id' } },
-}, { sequelize, modelName: 'SatisfactionSurvey', tableName: 'satisfaction_surveys' });
+}, { sequelize, modelName: 'SatisfactionSurvey', tableName: 'satisfaction_surveys', underscored: true });
 
 // ─────────────────────────────────────────────
 // REPORTS
@@ -460,4 +460,4 @@ Report.init({
   pdfUrl: { type: DataTypes.STRING },
   filters: { type: DataTypes.JSONB },
   summary: { type: DataTypes.JSONB },
-}, { sequelize, modelName: 'Report', tableName: 'reports' });
+}, { sequelize, modelName: 'Report', tableName: 'reports', underscored: true });
