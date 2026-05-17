@@ -1,0 +1,77 @@
+# ============================================================
+# RISO HUB — docker-compose.yml
+# Local development environment.
+# Spins up: PostgreSQL, RabbitMQ, pgAdmin.
+# The Node.js API runs locally (npm run dev) and connects
+# to these services.
+# ============================================================
+
+version: '3.9'
+
+services:
+
+  # ── PostgreSQL ───────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: risohub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: risohub
+      POSTGRES_USER: risohub
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U risohub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── RabbitMQ ─────────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: risohub-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: risohub
+      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_VHOST: risohub
+    ports:
+      - "5672:5672"      # AMQP
+      - "15672:15672"    # Management UI → http://localhost:15672
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ── pgAdmin (optional — visual DB browser) ───────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: risohub-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@risohome.co.uk
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"        # → http://localhost:5050
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    profiles:
+      - tools             # Only starts with: docker compose --profile tools up
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  pgadmin_data:
+
+networks:
+  default:
+    name: risohub-network

@@ -1,0 +1,87 @@
+# ============================================================
+# RISO HUB — render.yaml
+# Infrastructure-as-code for Render.com
+# Deploy: connect repo to Render, it auto-detects this file.
+# Docs:   https://render.com/docs/blueprint-spec
+# ============================================================
+
+services:
+
+  # ── Backend API ─────────────────────────────────────────────
+  - type: web
+    name: risohub-api
+    runtime: node
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm run start:prod
+    branch: main
+    region: frankfurt                    # EU — GDPR compliance
+    plan: standard                       # 2 CPU / 4GB RAM
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        fromDatabase:
+          name: risohub-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://risohub.vercel.app       # Update to your Vercel URL after deploy
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_S3_BUCKET
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: SENDGRID_FROM_EMAIL
+        sync: false
+      - key: SENDGRID_FROM_NAME
+        sync: false
+      - key: SERVICE_TOKEN
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: GOOGLE_DRIVE_ROOT_FOLDER_ID
+        sync: false
+      - key: HUBSPOT_ACCESS_TOKEN
+        sync: false
+      - key: EPC_API_EMAIL
+        sync: false
+      - key: EPC_API_KEY
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false
+      - key: SUPER_ADMIN_KEY
+        sync: false
+      - key: DEFAULT_TENANT_ID
+        sync: false
+      - key: ROOT_DOMAIN
+        value: risohub.co.uk
+      - key: BUS_ASHP_GRANT_AMOUNT
+        value: "7500"
+      - key: BUS_GSHP_GRANT_AMOUNT
+        value: "7500"
+
+databases:
+  - name: risohub-db
+    databaseName: risohub
+    user: risohub
+    plan: standard              # 4GB RAM, daily backups, point-in-time recovery
+    region: frankfurt
+    ipAllowList: []             # Only Render internal network

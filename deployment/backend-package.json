@@ -1,0 +1,61 @@
+{
+  "name": "risohub-api",
+  "version": "6.0.0",
+  "description": "RISO HUB — MCS Compliance Management Platform API",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc --project tsconfig.json",
+    "start": "node dist/server.js",
+    "migrate": "ts-node src/scripts/migrate.ts",
+    "seed": "ts-node src/seeds/001-seed.ts",
+    "lint": "eslint 'src/**/*.ts'",
+    "test": "jest --runInBand",
+    "worker": "ts-node src/scripts/workerEntrypoint.ts"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.0",
+    "amqplib": "^0.10.4",
+    "aws-sdk": "^2.1530.0",
+    "axios": "^1.6.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "googleapis": "^128.0.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.7",
+    "otplib": "^12.0.1",
+    "pdf-lib": "^1.17.1",
+    "pdfmake": "^0.2.9",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.35.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.4",
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.10.0",
+    "@types/pdfmake": "^0.2.9",
+    "@types/pg": "^8.10.9",
+    "@types/uuid": "^9.0.7",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

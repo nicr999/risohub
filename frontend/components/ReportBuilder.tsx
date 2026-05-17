@@ -1,0 +1,269 @@
+// ============================================================
+// RISO HUB — ReportBuilder.tsx
+// Generate, list, and download compliance reports
+// ============================================================
+
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+interface Report {
+  id: number;
+  type: string;
+  title: string;
+  periodStart?: string;
+  periodEnd?: string;
+  generatedAt: string;
+  pdfUrl?: string;
+  generator: { name: string };
+  summary?: any;
+}
+
+const REPORT_TYPES = [
+  { value: 'monthly_compliance', label: 'Monthly Compliance Report', icon: '📋', desc: 'Projects by stage, non-compliant checklist items' },
+  { value: 'quarterly_compliance', label: 'Quarterly Compliance Report', icon: '📊', desc: 'Broader compliance overview for the quarter' },
+  { value: 'complaints_summary', label: 'Complaints Summary', icon: '📨', desc: 'Complaint volumes, statuses, escalations, resolution times' },
+  { value: 'qualifications_audit', label: 'Staff Qualifications Audit', icon: '🎓', desc: 'All staff qualifications, expiry status, action required' },
+  { value: 'project_pipeline', label: 'Project Pipeline', icon: '🔄', desc: 'Full project list by stage with assignees' },
+];
+
+export default function ReportBuilder() {
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ type: '', periodStart: '', periodEnd: '' });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [filterType, setFilterType] = useState('');
+
+  useEffect(() => { load(); }, []);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const params: any = {};
+      if (filterType) params.type = filterType;
+      const res = await axios.get('/api/reports', { params });
+      setReports(res.data);
+    } catch { setError('Failed to load reports'); }
+    finally { setLoading(false); }
+  }
+
+  async function handleGenerate() {
+    if (!form.type) { setError('Select a report type'); return; }
+    setGenerating(true); setError(''); setSuccess('');
+    try {
+      const res = await axios.post('/api/reports/generate', {
+        type: form.type,
+        periodStart: form.periodStart || undefined,
+        periodEnd: form.periodEnd || undefined,
+      });
+      setSuccess(`"${res.data.title}" is generating. The PDF will be ready shortly.`);
+      setShowForm(false);
+      setForm({ type: '', periodStart: '', periodEnd: '' });
+      setTimeout(load, 2000);
+    } catch (e: any) {
+      setError(e.response?.data?.error || 'Generation failed');
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  const needsPeriod = ['monthly_compliance', 'quarterly_compliance', 'complaints_summary'].includes(form.type);
+  const selectedType = REPORT_TYPES.find(t => t.value === form.type);
+
+  const filteredReports = filterType ? reports.filter(r => r.type === filterType) : reports;
+
+  return (
+    <div style={s.page}>
+      {/* ── Header ── */}
+      <div style={s.header}>
+        <div>
+          <h2 style={s.title}>Reports</h2>
+          <p style={s.subtitle}>Generate and download compliance reports</p>
+        </div>
+        <button style={s.generateBtn} onClick={() => { setShowForm(true); setError(''); }}>+ Generate Report</button>
+      </div>
+
+      {(error || success) && (
+        <div style={error ? s.errorBanner : s.successBanner}>{error || success}</div>
+      )}
+
+      {/* ── Filter ── */}
+      <div style={s.filterRow}>
+        <select style={s.select} value={filterType} onChange={e => { setFilterType(e.target.value); }}>
+          <option value="">All report types</option>
+          {REPORT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+        </select>
+        <button style={s.refreshBtn} onClick={load}>↻</button>
+      </div>
+
+      {/* ── Report list ── */}
+      {loading ? (
+        <div style={s.loading}>Loading reports…</div>
+      ) : filteredReports.length === 0 ? (
+        <div style={s.empty}>
+          <div style={s.emptyIcon}>📄</div>
+          <div style={s.emptyText}>No reports generated yet</div>
+          <div style={s.emptyDesc}>Click "Generate Report" to create your first compliance report</div>
+        </div>
+      ) : (
+        <div style={s.reportList}>
+          {filteredReports.map(r => {
+            const typeInfo = REPORT_TYPES.find(t => t.value === r.type);
+            return (
+              <div key={r.id} style={s.reportCard}>
+                <div style={s.reportLeft}>
+                  <span style={s.reportIcon}>{typeInfo?.icon || '📄'}</span>
+                  <div style={s.reportInfo}>
+                    <div style={s.reportTitle}>{r.title}</div>
+                    <div style={s.reportMeta}>
+                      <span>Generated by {r.generator?.name}</span>
+                      <span style={s.dot}>·</span>
+                      <span>{new Date(r.generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                      {r.periodStart && r.periodEnd && (
+                        <>
+                          <span style={s.dot}>·</span>
+                          <span>{new Date(r.periodStart).toLocaleDateString('en-GB')} – {new Date(r.periodEnd).toLocaleDateString('en-GB')}</span>
+                        </>
+                      )}
+                    </div>
+                    {r.summary && <SummarySnippet summary={r.summary} type={r.type} />}
+                  </div>
+                </div>
+                <div style={s.reportActions}>
+                  {r.pdfUrl ? (
+                    <a href={`/api/reports/${r.id}/download`} target="_blank" rel="noreferrer" style={s.downloadBtn}>
+                      ↓ Download PDF
+                    </a>
+                  ) : (
+                    <span style={s.generatingTag}>Generating…</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Generate modal ── */}
+      {showForm && (
+        <div style={s.overlay} onClick={() => setShowForm(false)}>
+          <div style={s.modal} onClick={e => e.stopPropagation()}>
+            <h3 style={s.modalTitle}>Generate Report</h3>
+
+            {/* Type picker */}
+            <div style={s.typePicker}>
+              {REPORT_TYPES.map(t => (
+                <div
+                  key={t.value}
+                  style={{ ...s.typeCard, ...(form.type === t.value ? s.typeCardActive : {}) }}
+                  onClick={() => setForm(f => ({ ...f, type: t.value }))}
+                >
+                  <span style={s.typeIcon}>{t.icon}</span>
+                  <div style={s.typeLabel}>{t.label}</div>
+                  <div style={s.typeDesc}>{t.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Period selector */}
+            {needsPeriod && (
+              <div style={s.periodRow}>
+                <div style={s.periodField}>
+                  <label style={s.fieldLabel}>Period Start</label>
+                  <input type="date" style={s.input} value={form.periodStart} onChange={e => setForm(f => ({ ...f, periodStart: e.target.value }))} />
+                </div>
+                <div style={s.periodField}>
+                  <label style={s.fieldLabel}>Period End</label>
+                  <input type="date" style={s.input} value={form.periodEnd} onChange={e => setForm(f => ({ ...f, periodEnd: e.target.value }))} />
+                </div>
+              </div>
+            )}
+
+            {selectedType && !needsPeriod && (
+              <div style={s.noPeriodNote}>This report uses all available data — no date range needed.</div>
+            )}
+
+            {error && <div style={s.errorBanner}>{error}</div>}
+
+            <div style={s.modalActions}>
+              <button style={s.cancelBtn} onClick={() => setShowForm(false)}>Cancel</button>
+              <button style={s.saveBtn} onClick={handleGenerate} disabled={generating || !form.type}>
+                {generating ? 'Generating…' : 'Generate'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SummarySnippet({ summary, type }: { summary: any; type: string }) {
+  const items: string[] = [];
+  if (type === 'monthly_compliance' || type === 'quarterly_compliance') {
+    if (summary.totalProjects != null) items.push(`${summary.totalProjects} projects`);
+    if (summary.nonCompliantItems?.length) items.push(`${summary.nonCompliantItems.length} non-compliant items`);
+  }
+  if (type === 'complaints_summary') {
+    if (summary.total != null) items.push(`${summary.total} complaints`);
+    if (summary.escalated?.length) items.push(`${summary.escalated.length} escalated`);
+    if (summary.avgResolutionDays != null) items.push(`avg ${summary.avgResolutionDays} days to resolve`);
+  }
+  if (type === 'qualifications_audit') {
+    if (summary.expired?.length) items.push(`${summary.expired.length} expired`);
+    if (summary.expiringSoon?.length) items.push(`${summary.expiringSoon.length} expiring soon`);
+  }
+  if (type === 'project_pipeline') {
+    if (summary.total != null) items.push(`${summary.total} projects`);
+  }
+  if (!items.length) return null;
+  return <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>{items.join(' · ')}</div>;
+}
+
+const s: Record<string, React.CSSProperties> = {
+  page: { fontFamily: 'Satoshi, sans-serif', background: '#F5F5F2', minHeight: '100vh', padding: 24 },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 },
+  title: { fontSize: 20, fontWeight: 700, color: '#333', margin: 0 },
+  subtitle: { fontSize: 13, color: '#888', margin: '3px 0 0' },
+  generateBtn: { fontSize: 12, padding: '7px 16px', background: '#7A8465', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' },
+  filterRow: { display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' },
+  select: { fontSize: 12, padding: '6px 10px', border: '1px solid #ddd', borderRadius: 6, background: '#fff' },
+  refreshBtn: { fontSize: 14, padding: '5px 10px', border: '1px solid #ddd', borderRadius: 6, background: '#fff', cursor: 'pointer', color: '#555' },
+  loading: { padding: 40, textAlign: 'center', color: '#999', fontSize: 13 },
+  empty: { textAlign: 'center', padding: '48px 0' },
+  emptyIcon: { fontSize: 36, marginBottom: 12 },
+  emptyText: { fontSize: 15, fontWeight: 600, color: '#555', marginBottom: 6 },
+  emptyDesc: { fontSize: 13, color: '#999' },
+  reportList: { display: 'flex', flexDirection: 'column', gap: 10 },
+  reportCard: { background: '#fff', border: '1px solid #e8e8e4', borderRadius: 8, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 },
+  reportLeft: { display: 'flex', gap: 14, alignItems: 'flex-start', flex: 1 },
+  reportIcon: { fontSize: 24, flexShrink: 0, marginTop: 1 },
+  reportInfo: { flex: 1 },
+  reportTitle: { fontSize: 14, fontWeight: 600, color: '#333', marginBottom: 3 },
+  reportMeta: { fontSize: 12, color: '#888', display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' },
+  dot: { color: '#ccc' },
+  reportActions: { flexShrink: 0 },
+  downloadBtn: { fontSize: 12, padding: '6px 14px', background: '#f0f1ec', color: '#7A8465', border: '1px solid #d0d4c8', borderRadius: 6, textDecoration: 'none', display: 'inline-block', fontWeight: 600 },
+  generatingTag: { fontSize: 11, color: '#d97706', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '3px 10px' },
+  overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  modal: { background: '#fff', borderRadius: 10, padding: '24px 28px', width: 560, maxWidth: '95vw', maxHeight: '90vh', overflowY: 'auto' },
+  modalTitle: { fontSize: 16, fontWeight: 700, color: '#333', margin: '0 0 16px' },
+  typePicker: { display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 },
+  typeCard: { padding: '12px 14px', border: '1.5px solid #e8e8e4', borderRadius: 7, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 3 },
+  typeCardActive: { borderColor: '#7A8465', background: '#f0f1ec' },
+  typeIcon: { fontSize: 18, marginBottom: 2 },
+  typeLabel: { fontSize: 13, fontWeight: 600, color: '#333' },
+  typeDesc: { fontSize: 11, color: '#888' },
+  periodRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 },
+  periodField: { display: 'flex', flexDirection: 'column', gap: 4 },
+  fieldLabel: { fontSize: 11, fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.04em' },
+  input: { fontSize: 13, padding: '7px 10px', border: '1px solid #ddd', borderRadius: 6, background: '#fafaf8', outline: 'none' },
+  noPeriodNote: { fontSize: 12, color: '#888', background: '#fafaf8', borderRadius: 6, padding: '8px 12px', marginBottom: 16 },
+  modalActions: { display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 },
+  saveBtn: { fontSize: 12, padding: '7px 18px', background: '#7A8465', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' },
+  cancelBtn: { fontSize: 12, padding: '7px 14px', background: '#fff', color: '#555', border: '1px solid #ccc', borderRadius: 6, cursor: 'pointer' },
+  errorBanner: { background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 6, padding: '8px 12px', fontSize: 12, color: '#dc2626', marginBottom: 12 },
+  successBanner: { background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 6, padding: '8px 12px', fontSize: 12, color: '#16a34a', marginBottom: 16 },
+};
