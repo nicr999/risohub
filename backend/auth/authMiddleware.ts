@@ -146,6 +146,43 @@ export function projectAssignee(
   };
 }
 
+// ─── Pre-built authenticate singleton ────────────────────────────────────────
+// Routes import `{ authenticate }` directly; this lazy singleton satisfies that
+// contract without creating circular imports (models loaded via require at runtime).
+
+let _singleton: ReturnType<typeof createAuthenticate> | null = null;
+
+export const authenticate: import('express').RequestHandler = (req, res, next) => {
+  if (!_singleton) {
+    /* eslint-disable @typescript-eslint/no-var-requires */
+    const { User, RefreshToken, PasswordResetToken, AuditLog } = require('../models/index');
+    const { Op } = require('sequelize');
+    const db: ConstructorParameters<typeof AuthService>[0] = {
+      async findUserByEmail(email: string) { return User.findOne({ where: { email } }) as any; },
+      async findUserById(id: string) { return User.findByPk(id) as any; },
+      async updateUser(id: string, patch: any) { await User.update(patch, { where: { id } }); },
+      async saveRefreshToken(data: any) { await RefreshToken.create(data); },
+      async findRefreshToken(tokenHash: string) { return RefreshToken.findOne({ where: { tokenHash } }) as any; },
+      async revokeRefreshToken(id: string) { await RefreshToken.update({ revokedAt: new Date() }, { where: { id } }); },
+      async revokeAllUserRefreshTokens(userId: string) {
+        await RefreshToken.update({ revokedAt: new Date() }, { where: { userId, revokedAt: { [Op.is]: null } } });
+      },
+      async savePasswordResetToken(data: any) { await PasswordResetToken.create(data); },
+      async findPasswordResetToken(tokenHash: string) { return PasswordResetToken.findOne({ where: { tokenHash } }) as any; },
+      async markPasswordResetTokenUsed(id: string) { await PasswordResetToken.update({ usedAt: new Date() }, { where: { id } }); },
+    };
+    const auditLog: ConstructorParameters<typeof AuthService>[1] = {
+      async log({ userId, action, ipAddress, metadata }: any) {
+        try {
+          await AuditLog.create({ timestamp: new Date(), userId, action, ipAddress, metadata: metadata ?? null, entityType: null, entityId: null, oldValue: null, newValue: null });
+        } catch { /* non-fatal */ }
+      },
+    };
+    _singleton = createAuthenticate(new AuthService(db, auditLog));
+  }
+  return _singleton(req, res, next);
+};
+
 // ─── Route permissions reference ──────────────────────────────────────────────
 //
 // GET  /api/projects              → authenticate, authorize(Admin, Surveyor, Auditor)

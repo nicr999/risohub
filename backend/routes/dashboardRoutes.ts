@@ -155,7 +155,7 @@ router.get('/summary', authenticate, async (req: Request, res: Response) => {
       if (pipeline[p.status as keyof typeof pipeline]) {
         pipeline[p.status as keyof typeof pipeline].push(projectSummary);
       }
-    });
+    }
 
     // ── Alerts bar ────────────────────────────────────────────
     const alerts = [];
